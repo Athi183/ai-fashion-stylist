@@ -6,6 +6,7 @@ function App() {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [statusData, setStatusData] = useState(null);
 
   const onFileChange = (e) => setFile(e.target.files[0]);
 
@@ -22,7 +23,8 @@ function App() {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setStatus("Uploaded!");
-      setImageUrl(`http://127.0.0.1:5000/uploads/${res.data.filename}`);
+  setStatusData(res.data);
+  setImageUrl(`http://127.0.0.1:5000${res.data.image_url}`);
     } catch (err) {
       console.error(err);
       setStatus("Upload failed");
@@ -51,11 +53,18 @@ function App() {
 
       {/* Display Uploaded Image */}
       {imageUrl && (
-        <div className="result">
-          <h4>Saved Image:</h4>
-          <img src={imageUrl} alt="uploaded" />
-        </div>
-      )}
+  <div style={{marginTop:"20px"}}>
+    <h4>Original:</h4>
+    <img src={imageUrl} style={{maxWidth:"250px"}} />
+
+    <h4>Mask:</h4>
+    <img src={statusData?.mask_url && `http://127.0.0.1:5000${statusData.mask_url}`} style={{maxWidth:"250px"}} />
+
+    <h4>Extracted Person:</h4>
+    <img src={statusData?.person_url && `http://127.0.0.1:5000${statusData.person_url}`} style={{maxWidth:"250px"}} />
+  </div>
+)}
+
 
       {/* Footer */}
       <footer>
