@@ -7,9 +7,11 @@ function App() {
   const [status, setStatus] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [statusData, setStatusData] = useState(null);
+  const [theme, setTheme] = useState("casual");
+const [recommendations, setRecommendations] = useState("");
 
   const onFileChange = (e) => setFile(e.target.files[0]);
-
+  const [generatedImage, setGeneratedImage] = useState("");
   const onUpload = async () => {
     if (!file) {
       setStatus("Choose a file first");
@@ -30,7 +32,13 @@ function App() {
       setStatus("Upload failed");
     }
   };
-
+  const generateOutfit = async () => {
+  const res = await axios.post("http://127.0.0.1:5000/generate_outfit", {
+    filename: statusData.filename,
+    theme
+  });
+  setGeneratedImage(res.data.generated_url);
+};
   return (
     <div className="app">
       {/* Header / Hero Section */}
@@ -50,7 +58,44 @@ function App() {
         <button onClick={onUpload}>Upload</button>
         <p className="status">{status}</p>
       </div>
+      <div style={{marginTop: 20}}>
+  <h3>Get Outfit Suggestions</h3>
 
+  <label>Choose style theme: </label>
+  <select value={theme} onChange={e => setTheme(e.target.value)}>
+    <option value="casual">Casual</option>
+    <option value="streetwear">Streetwear</option>
+    <option value="formal">Formal</option>
+    <option value="party">Party</option>
+    <option value="ethnic">Ethnic</option>
+    <option value="summer">Summer</option>
+  </select>
+
+  <button style={{marginLeft: 10}} onClick={async () => {
+    const res = await axios.post("http://127.0.0.1:5000/recommend", { theme });
+    setRecommendations(res.data.recommendations);
+  }}>
+    Get Outfit Ideas
+  </button>
+
+  {recommendations && (
+    <pre style={{background:"#f2f2f2", marginTop:10, padding:10, whiteSpace:"pre-wrap"}}>
+      {recommendations}
+    </pre>
+  )}
+  <button onClick={generateOutfit} style={{marginTop: 20}}>
+  Generate Outfit Image 🎨
+</button>
+
+{generatedImage && (
+  <div style={{marginTop:20}}>
+    <h4>AI-Styled Outfit:</h4>
+    <img src={generatedImage} style={{maxWidth:"300px"}} />
+  </div>
+)}
+
+</div>
+    
       {/* Display Uploaded Image */}
       {imageUrl && (
   <div style={{marginTop:"20px"}}>
